@@ -5,148 +5,111 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"task2/internal/domain/entities"
 	"task2/internal/domain/errordata"
 	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
-type jsonData struct {
-	BankAccounts []struct {
-		ID      string  `json:"id"`
-		Name    string  `json:"name"`
-		Balance float64 `json:"balance"`
-	} `json:"bank_accounts"`
-	Categories []struct {
-		ID   string `json:"id"`
-		Type string `json:"type"`
-		Name string `json:"name"`
-	} `json:"categories"`
-	Operations []struct {
-		ID          string  `json:"id"`
-		Type        string  `json:"type"`
-		AccountID   string  `json:"account_id"`
-		Amount      float64 `json:"amount"`
-		Date        string  `json:"date"`
-		Description string  `json:"description"`
-		CategoryID  string  `json:"category_id"`
-	} `json:"operations"`
-}
-
 type ImportJSON struct {
-	filePath    string
-	errorData   []errordata.ErrorRecord
-	recordsJSON jsonData
+	filePath  string
+	errorData []errordata.ErrorRecord
+	raw       map[string][]map[string]interface{}
 }
 
 func NewJSONParser() DataImporter {
 	return &ImportJSON{}
 }
 
-func (importer *ImportJSON) GetPath() (string, error) {
-	fmt.Print("Введите путь к JSON файлу: ")
-	var filePath string
-	fmt.Scanln(&filePath)
+func (importer *ImportJSON) GetPath() error {
+	p := tea.NewProgram(newPathInputModel())
 
-	if filePath == "" {
-		return "", errors.New("путь не может быть пустым")
+	finalModel, err := p.Run()
+	if err != nil {
+		return fmt.Errorf("ошибка интерфейса ввода: %v", err)
 	}
 
-	importer.filePath = strings.TrimSpace(filePath)
-	return importer.filePath, nil
+	m := finalModel.(pathInputModel)
+
+	if m.cancelled {
+		return errors.New("ввод отменён пользователем")
+	}
+
+	if m.done {
+		importer.filePath = m.filePath
+		return nil
+	}
+
+	return errors.New("неизвестная ошибка при вводе пути")
 }
 
-func (importer *ImportJSON) ParseData() error {
-	if importer.filePath == "" {
-		return errors.New("путь к файлу не установлен")
-	}
-
-	dataBytes, err := os.ReadFile(importer.filePath)
+func (i *ImportJSON) ParseData() error {
+	data, err := os.ReadFile(i.filePath)
 	if err != nil {
 		return err
 	}
 
-	var jd jsonData
-	if err := json.Unmarshal(dataBytes, &jd); err != nil {
-		return err
-	}
-
-	importer.recordsJSON = jd
-	return nil
+	return json.Unmarshal(data, &i.raw)
 }
 
-func (importer *ImportJSON) ParseBankAccounts() ([]entities.BankAccount, error) {
-	var accounts []entities.BankAccount
-	for _, a := range importer.recordsJSON.BankAccounts {
-		account := entities.BankAccount{
-			ID:   a.ID,
-			Name: a.Name,
-		}
-		if err := account.SetBalance(a.Balance); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: []string{a.ID, a.Name, fmt.Sprintf("%f", a.Balance)},
-				Err:  err,
-			})
-			continue
-		}
-		accounts = append(accounts, account)
+func (i *ImportJSON) ParseBankAccounts() ([]entities.BankAccount, error) {
+	var result []entities.BankAccount
+
+	for _, acc := range i.raw["bank_accounts"] {
+		result = append(result, entities.BankAccount{
+			ID:      acc["id"].(string),
+			Name:    acc["name"].(string),
+			Balance: acc["balance"].(float64),
+		})
 	}
-	return accounts, nil
+
+	return result, nil
 }
 
-func (importer *ImportJSON) ParseCategories() ([]entities.Category, error) {
-	var categories []entities.Category
-	for _, c := range importer.recordsJSON.Categories {
-		category := entities.Category{
-			ID:   c.ID,
-			Name: c.Name,
-		}
-		if err := category.SetTypeCategory(c.Type); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: []string{c.ID, c.Type, c.Name},
-				Err:  err,
-			})
-			continue
-		}
-		categories = append(categories, category)
+func (i *ImportJSON) ParseCategories() ([]entities.Category, error) {
+	var result []entities.Category
+
+	for _, cat := range i.raw["categories"] {
+		result = append(result, entities.Category{
+			ID:           cat["id"].(string),
+			TypeCategory: cat["type"].(string),
+			Name:         cat["name"].(string),
+		})
 	}
-	return categories, nil
+
+	return result, nil
 }
 
-func (importer *ImportJSON) ParseOperations() ([]entities.Operation, error) {
-	var operations []entities.Operation
-	for _, o := range importer.recordsJSON.Operations {
-		date, err := time.Parse("2006-01-02", o.Date)
+func (i *ImportJSON) ParseOperations() ([]entities.Operation, error) {
+	var result []entities.Operation
+
+	for _, op := range i.raw["operations"] {
+		dateStr := op["date"].(string)
+		parsedDate, err := time.Parse("2006-01-02", dateStr)
 		if err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: []string{o.ID, o.Type, o.AccountID, o.Date},
-				Err:  errors.New("ошибка в дате"),
+			lineBytes, _ := json.Marshal(op)
+			i.errorData = append(i.errorData, errordata.ErrorRecord{
+				Line: string(lineBytes),
+				Err:  errors.New("некорректная дата"),
 			})
 			continue
 		}
 
-		op := entities.Operation{
-			ID:          o.ID,
-			Account:     &entities.BankAccount{ID: o.AccountID},
-			Amount:      o.Amount,
-			Date:        date,
-			Description: o.Description,
-			CategoryID:  &entities.Category{ID: o.CategoryID},
-		}
-
-		if err := op.SetTypeOperation(o.Type); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: []string{o.ID, o.Type},
-				Err:  err,
-			})
-			continue
-		}
-
-		operations = append(operations, op)
+		result = append(result, entities.Operation{
+			ID:            op["id"].(string),
+			TypeOperation: op["type"].(string),
+			Account:       &entities.BankAccount{ID: op["account_id"].(string)},
+			Amount:        op["amount"].(float64),
+			Date:          parsedDate,
+			Description:   op["description"].(string),
+			CategoryID:    &entities.Category{ID: op["category_id"].(string)},
+		})
 	}
-	return operations, nil
+
+	return result, nil
 }
 
-func (importer *ImportJSON) GetErrorData() []errordata.ErrorRecord {
-	return importer.errorData
+func (i *ImportJSON) GetErrorData() []errordata.ErrorRecord {
+	return i.errorData
 }

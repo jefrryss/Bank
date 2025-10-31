@@ -11,7 +11,7 @@ type RepositoryOperMemory struct {
 	data map[string]*entities.Operation
 }
 
-func NewRepositoryOperInMemory() RepositoryOperations {
+func NewRepositoryOperMemory() RepositoryOperations {
 	return &RepositoryOperMemory{data: make(map[string]*entities.Operation)}
 }
 

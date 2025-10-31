@@ -1,31 +1,36 @@
 package export
 
-import "task2/internal/domain/entities"
+import (
+	"task2/internal/domain/entities"
+)
 
 type Visitable interface {
-	Accpet(exporter Exporter)
+	Accept(exporter ExporterVisitor) error
 }
 
 type CategoryAdapter struct {
-	Categorys *[]entities.Category
+	Categorys *[]*entities.Category
 }
 
-func (cat *CategoryAdapter) Accept(exporter Exporter) {
-	exporter.ExportCategory(cat.Categorys)
+func (cat *CategoryAdapter) Accept(exporter ExporterVisitor) error {
+	err := exporter.ExportCategory(cat.Categorys)
+	return err
 }
 
 type BankAccountAdapter struct {
-	BankAccounts *[]entities.Category
+	BankAccounts *[]*entities.BankAccount
 }
 
-func (bank *BankAccountAdapter) Accept(exporter Exporter) {
-	exporter.ExportCategory(bank.BankAccounts)
+func (bank *BankAccountAdapter) Accept(exporter ExporterVisitor) error {
+	err := exporter.ExportBankAccount(bank.BankAccounts)
+	return err
 }
 
 type OperationAdapter struct {
-	Operations *[]entities.Category
+	Operations *[]*entities.Operation
 }
 
-func (oper *OperationAdapter) Accept(exporter Exporter) {
-	exporter.ExportCategory(oper.Operations)
+func (oper *OperationAdapter) Accept(exporter ExporterVisitor) error {
+	err := exporter.ExportOperation(oper.Operations)
+	return err
 }

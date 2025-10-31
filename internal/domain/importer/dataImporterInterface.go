@@ -7,7 +7,7 @@ import (
 
 type DataImporter interface {
 	ParseData() error
-	GetPath() (string, error)
+	GetPath() error
 	ParseBankAccounts() ([]entities.BankAccount, error)
 	ParseCategories() ([]entities.Category, error)
 	ParseOperations() ([]entities.Operation, error)
@@ -17,7 +17,7 @@ type DataImporter interface {
 // Шаблоный метод (функция)
 func GetValidateData(importer DataImporter) ([]entities.BankAccount, []entities.Category, []entities.Operation, []errordata.ErrorRecord, error) {
 
-	_, err := importer.GetPath()
+	err := importer.GetPath()
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}

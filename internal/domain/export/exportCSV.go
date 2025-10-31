@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"task2/internal/domain/entities"
 )
@@ -12,21 +13,23 @@ type ExportCSV struct {
 	filePath string
 }
 
+func NewExportCSV() ExporterVisitor {
+	return &ExportCSV{}
+}
 func (exporter *ExportCSV) GetPath() error {
-
 	wd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("не удалось получить рабочую директорию: %v", err)
 	}
-	folder := wd + "/../exportFiles"
 
+	folder := filepath.Join(wd, "..", "exportFiles")
 	if err := os.MkdirAll(folder, 0755); err != nil {
 		return fmt.Errorf("не удалось создать папку: %v", err)
 	}
 
 	var filename string
 	for {
-		fmt.Print("Введите название файла для экспорта (например bank_accounts.csv): ")
+		fmt.Print("Введите название файла для экспорта (например data.csv): ")
 		fmt.Scanln(&filename)
 		filename = strings.TrimSpace(filename)
 
@@ -35,7 +38,11 @@ func (exporter *ExportCSV) GetPath() error {
 			continue
 		}
 
-		fullPath := folder + "/" + filename
+		if filepath.Ext(filename) == "" {
+			filename += ".csv"
+		}
+
+		fullPath := filepath.Join(folder, filename)
 
 		if _, err := os.Stat(fullPath); err == nil {
 			fmt.Printf("Файл %s уже существует. Перезаписать? (y/n): ", fullPath)
@@ -58,12 +65,18 @@ func (exporter *ExportCSV) GetPath() error {
 	return nil
 }
 
-func (exporter *ExportCSV) ExportBankAccount(accounts *[]entities.BankAccount) error {
+func (exporter *ExportCSV) ExportBankAccount(accounts *[]*entities.BankAccount) error {
 	if exporter.filePath == "" {
 		return fmt.Errorf("путь к файлу не задан")
 	}
+	ext := filepath.Ext(exporter.filePath)
+	if ext == "" {
+		ext = ".csv"
+	}
+	base := exporter.filePath[:len(exporter.filePath)-len(ext)]
 
-	file, err := os.Create(exporter.filePath)
+	newFilePath := base + "_BackAccounts" + ext
+	file, err := os.Create(newFilePath)
 	if err != nil {
 		return fmt.Errorf("ошибка создания файла: %v", err)
 	}
@@ -80,7 +93,7 @@ func (exporter *ExportCSV) ExportBankAccount(accounts *[]entities.BankAccount) e
 		record := []string{
 			acc.ID,
 			acc.Name,
-			fmt.Sprintf("%.2f", acc.Balance()),
+			fmt.Sprintf("%.2f", acc.Balance),
 		}
 		if err := writer.Write(record); err != nil {
 			return fmt.Errorf("ошибка записи: %v", err)
@@ -90,12 +103,18 @@ func (exporter *ExportCSV) ExportBankAccount(accounts *[]entities.BankAccount) e
 	return nil
 }
 
-func (exporter *ExportCSV) ExportCategory(categories *[]entities.Category) error {
+func (exporter *ExportCSV) ExportCategory(categories *[]*entities.Category) error {
 	if exporter.filePath == "" {
 		return fmt.Errorf("путь к файлу не задан")
 	}
+	ext := filepath.Ext(exporter.filePath)
+	if ext == "" {
+		ext = ".csv"
+	}
+	base := exporter.filePath[:len(exporter.filePath)-len(ext)]
 
-	file, err := os.Create(exporter.filePath)
+	newFilePath := base + "_Category" + ext
+	file, err := os.Create(newFilePath)
 	if err != nil {
 		return fmt.Errorf("ошибка создания файла: %v", err)
 	}
@@ -111,7 +130,7 @@ func (exporter *ExportCSV) ExportCategory(categories *[]entities.Category) error
 	for _, cat := range *categories {
 		record := []string{
 			cat.ID,
-			cat.TypeCategory(),
+			cat.TypeCategory,
 			cat.Name,
 		}
 		if err := writer.Write(record); err != nil {
@@ -122,12 +141,18 @@ func (exporter *ExportCSV) ExportCategory(categories *[]entities.Category) error
 	return nil
 }
 
-func (exporter *ExportCSV) ExportOperation(operations *[]entities.Operation) error {
+func (exporter *ExportCSV) ExportOperation(operations *[]*entities.Operation) error {
 	if exporter.filePath == "" {
 		return fmt.Errorf("путь к файлу не задан")
 	}
+	ext := filepath.Ext(exporter.filePath)
+	if ext == "" {
+		ext = ".csv"
+	}
+	base := exporter.filePath[:len(exporter.filePath)-len(ext)]
 
-	file, err := os.Create(exporter.filePath)
+	newFilePath := base + "_Operation" + ext
+	file, err := os.Create(newFilePath)
 	if err != nil {
 		return fmt.Errorf("ошибка создания файла: %v", err)
 	}
@@ -143,7 +168,7 @@ func (exporter *ExportCSV) ExportOperation(operations *[]entities.Operation) err
 	for _, op := range *operations {
 		record := []string{
 			op.ID,
-			op.TypeOperation(),
+			op.TypeOperation,
 			op.Account.ID,
 			fmt.Sprintf("%.2f", op.Amount),
 			op.Date.Format("2006-01-02"),

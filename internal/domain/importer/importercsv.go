@@ -23,30 +23,30 @@ func NewCSVParser() DataImporter {
 	return &ImportCSV{}
 }
 
-func (importer *ImportCSV) GetPath() (string, error) {
+func (importer *ImportCSV) GetPath() error {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Введите путь к CSV файлу: ")
 
 	filePath, err := reader.ReadString('\n')
 	if err != nil {
-		return "", err
+		return err
 	}
 	filePath = strings.TrimSpace(filePath)
 
 	if filePath == "" {
-		return "", errors.New("путь не может быть пустым")
+		return errors.New("путь не может быть пустым")
 	}
 
 	_, err = os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", fmt.Errorf("файл или каталог не существует: %s", filePath)
+			return fmt.Errorf("файл или каталог не существует: %s", filePath)
 		}
 	}
 
 	importer.filePath = filePath
-	return filePath, nil
+	return nil
 }
 
 // ParseData читает данные из файла и сохраняет в структуру (разделитель ",")
@@ -96,7 +96,7 @@ func (importer *ImportCSV) ParseBankAccounts() ([]entities.BankAccount, error) {
 		idInt, err := strconv.Atoi(strings.TrimSpace(record[1]))
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в id"),
 			})
 			continue
@@ -105,25 +105,17 @@ func (importer *ImportCSV) ParseBankAccounts() ([]entities.BankAccount, error) {
 		balance, err := parseFloat(record[9])
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в balance"),
 			})
 			continue
 		}
 
 		account := entities.BankAccount{
-			ID:   strconv.Itoa(idInt),
-			Name: strings.TrimSpace(record[8]),
+			ID:      strconv.Itoa(idInt),
+			Name:    strings.TrimSpace(record[8]),
+			Balance: balance,
 		}
-
-		if err := account.SetBalance(balance); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
-				Err:  err,
-			})
-			continue
-		}
-
 		accounts = append(accounts, account)
 	}
 
@@ -148,24 +140,18 @@ func (importer *ImportCSV) ParseCategories() ([]entities.Category, error) {
 		idInt, err := strconv.Atoi(strings.TrimSpace(record[1]))
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в id"),
 			})
 			continue
 		}
 
 		category := entities.Category{
-			ID:   strconv.Itoa(idInt),
-			Name: strings.TrimSpace(record[8]),
+			ID:           strconv.Itoa(idInt),
+			Name:         strings.TrimSpace(record[8]),
+			TypeCategory: strings.TrimSpace(record[2]),
 		}
 
-		if err := category.SetTypeCategory(strings.TrimSpace(record[2])); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
-				Err:  err,
-			})
-			continue
-		}
 		categories = append(categories, category)
 	}
 
@@ -190,7 +176,7 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 		idInt, err := strconv.Atoi(strings.TrimSpace(record[1]))
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в id"),
 			})
 			continue
@@ -199,7 +185,7 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 		bankAccountID, err := strconv.Atoi(strings.TrimSpace(record[3]))
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в BankAccountID"),
 			})
 			continue
@@ -208,7 +194,7 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 		amount, err := parseFloat(record[4])
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в amount"),
 			})
 			continue
@@ -217,7 +203,7 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 		date, err := time.Parse("2006-01-02", strings.TrimSpace(record[5]))
 		if err != nil {
 			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
+				Line: strings.Join(record, ","),
 				Err:  errors.New("ошибка в Дате"),
 			})
 			continue
@@ -228,7 +214,7 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 			catID, err := strconv.Atoi(strings.TrimSpace(record[7]))
 			if err != nil {
 				importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-					Line: record,
+					Line: strings.Join(record, ","),
 					Err:  errors.New("ошибка в Category id"),
 				})
 				continue
@@ -237,19 +223,13 @@ func (importer *ImportCSV) ParseOperations() ([]entities.Operation, error) {
 		}
 
 		operation := entities.Operation{
-			ID:          strconv.Itoa(idInt),
-			Account:     &entities.BankAccount{ID: strconv.Itoa(bankAccountID)},
-			Amount:      amount,
-			Date:        date,
-			Description: strings.TrimSpace(record[6]),
-			CategoryID:  &entities.Category{ID: categoryID},
-		}
-		if err := operation.SetTypeOperation(strings.TrimSpace(record[2])); err != nil {
-			importer.errorData = append(importer.errorData, errordata.ErrorRecord{
-				Line: record,
-				Err:  err,
-			})
-			continue
+			ID:            strconv.Itoa(idInt),
+			Account:       &entities.BankAccount{ID: strconv.Itoa(bankAccountID)},
+			TypeOperation: strings.TrimSpace(record[2]),
+			Amount:        amount,
+			Date:          date,
+			Description:   strings.TrimSpace(record[6]),
+			CategoryID:    &entities.Category{ID: categoryID},
 		}
 		operations = append(operations, operation)
 	}
