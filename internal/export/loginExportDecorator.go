@@ -2,8 +2,10 @@ package export
 
 import (
 	"fmt"
-	"task2/internal/logstorage"
+
 	"time"
+
+	"github.com/jefrryss/Bank/internal/logstorage"
 )
 
 // декоратор для экспорта, чтобы логи записывать

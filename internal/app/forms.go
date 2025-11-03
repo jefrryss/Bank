@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"task2/internal/handmaker"
+	"github.com/jefrryss/Bank/internal/handmaker"
 )
 
 func (m *app) prepareForm() {

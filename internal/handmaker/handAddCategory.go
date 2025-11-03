@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"task2/domain/entities"
-	"task2/domain/factory"
-	"task2/internal/bankmanager"
+	"github.com/jefrryss/Bank/domain/entities"
+	"github.com/jefrryss/Bank/internal/bankmanager"
+	"github.com/jefrryss/Bank/internal/factory"
 )
 
 type Controller struct {

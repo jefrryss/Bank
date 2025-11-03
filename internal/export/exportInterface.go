@@ -1,6 +1,6 @@
 package export
 
-import "task2/domain/entities"
+import "github.com/jefrryss/Bank/domain/entities"
 
 //Visitor
 

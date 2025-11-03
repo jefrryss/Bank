@@ -1,6 +1,6 @@
 package repository
 
-import "task2/domain/entities"
+import "github.com/jefrryss/Bank/domain/entities"
 
 type RepositoryCategory interface {
 	Save(category *entities.Category) error

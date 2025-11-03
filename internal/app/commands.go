@@ -4,11 +4,10 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-
-	"task2/domain/ports"
-	"task2/internal/balancemanager"
-	"task2/internal/export"
-	"task2/internal/importer"
+	"github.com/jefrryss/Bank/domain/ports"
+	"github.com/jefrryss/Bank/internal/balancemanager"
+	"github.com/jefrryss/Bank/internal/export"
+	"github.com/jefrryss/Bank/internal/importer"
 )
 
 type balanceDoneMsg struct{ msg string }

@@ -1,8 +1,8 @@
 package ports
 
 import (
-	"task2/domain/entities"
-	"task2/domain/errordata"
+	"github.com/jefrryss/Bank/domain/entities"
+	"github.com/jefrryss/Bank/domain/errordata"
 )
 
 type DataImporter interface {

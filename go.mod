@@ -1,4 +1,4 @@
-module task2
+module github.com/jefrryss/Bank
 
 go 1.25.3
 

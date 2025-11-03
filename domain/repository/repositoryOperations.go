@@ -1,6 +1,6 @@
 package repository
 
-import "task2/domain/entities"
+import "github.com/jefrryss/Bank/domain/entities"
 
 type RepositoryOperations interface {
 	Save(operation *entities.Operation) error

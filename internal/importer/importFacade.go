@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"task2/domain/entities"
-	"task2/domain/errordata"
-	"task2/domain/factory"
-	"task2/domain/ports"
-	"task2/internal/logstorage"
+
+	"github.com/jefrryss/Bank/domain/errordata"
+	"github.com/jefrryss/Bank/domain/factory"
+	"github.com/jefrryss/Bank/domain/ports"
+	"github.com/jefrryss/Bank/internal/logstorage"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type ImportFacade struct {

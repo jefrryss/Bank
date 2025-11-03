@@ -8,8 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-
-	"task2/internal/analitic"
+	"github.com/jefrryss/Bank/internal/analitic"
 )
 
 func (m *app) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

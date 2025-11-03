@@ -2,8 +2,10 @@ package export
 
 import (
 	"fmt"
-	"task2/domain/entities"
-	"task2/internal/logstorage"
+
+	"github.com/jefrryss/Bank/internal/logstorage"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 // Фасад для работы с экспортом

@@ -4,13 +4,12 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-
-	"task2/internal/analitic"
-	"task2/internal/bankmanager"
-	"task2/internal/export"
-	"task2/internal/handmaker"
-	"task2/internal/importer"
-	"task2/internal/logstorage"
+	"github.com/jefrryss/Bank/internal/analitic"
+	"github.com/jefrryss/Bank/internal/bankmanager"
+	"github.com/jefrryss/Bank/internal/export"
+	"github.com/jefrryss/Bank/internal/handmaker"
+	"github.com/jefrryss/Bank/internal/importer"
+	"github.com/jefrryss/Bank/internal/logstorage"
 )
 
 type app struct {

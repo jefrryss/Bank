@@ -3,7 +3,8 @@ package analitic
 import (
 	"fmt"
 	"strings"
-	"task2/domain/entities"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type GroupByCategoryCommand struct {

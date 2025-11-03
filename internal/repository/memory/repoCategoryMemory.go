@@ -2,8 +2,9 @@ package memory
 
 import (
 	"errors"
-	"task2/domain/entities"
-	"task2/domain/repository"
+
+	"github.com/jefrryss/Bank/domain/entities"
+	"github.com/jefrryss/Bank/domain/repository"
 )
 
 //Реалиализация интерфейса RepositoryCategory

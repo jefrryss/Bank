@@ -8,10 +8,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"task2/domain/entities"
-	"task2/domain/errordata"
-	"task2/domain/ports"
 	"time"
+
+	"github.com/jefrryss/Bank/domain/errordata"
+
+	"github.com/jefrryss/Bank/domain/ports"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type ImportCSV struct {

@@ -7,7 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"task2/domain/entities"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 // реализация ExportVisitor ( ExportCSV - ConcreateVisitor)

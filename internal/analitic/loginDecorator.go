@@ -2,8 +2,10 @@ package analitic
 
 import (
 	"fmt"
-	"task2/internal/logstorage"
+
 	"time"
+
+	"github.com/jefrryss/Bank/internal/logstorage"
 )
 
 // декоратор над командой для логирования

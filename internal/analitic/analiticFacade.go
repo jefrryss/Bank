@@ -1,10 +1,11 @@
 package analitic
 
 import (
-	"time"
+	"github.com/jefrryss/Bank/internal/logstorage"
 
-	"task2/domain/entities"
-	"task2/internal/logstorage"
+	"github.com/jefrryss/Bank/domain/entities"
+
+	"time"
 )
 
 type AnalyticsFacade struct {

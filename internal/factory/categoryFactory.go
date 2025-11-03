@@ -3,7 +3,8 @@ package factory
 import (
 	"errors"
 	"strings"
-	"task2/domain/entities"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type CategoryFactory struct {

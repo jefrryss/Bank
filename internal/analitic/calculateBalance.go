@@ -2,8 +2,10 @@ package analitic
 
 import (
 	"fmt"
-	"task2/domain/entities"
+
 	"time"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type CalculateBalanceCommand struct {

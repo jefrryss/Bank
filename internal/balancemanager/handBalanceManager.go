@@ -1,6 +1,6 @@
 package balancemanager
 
-import "task2/internal/bankmanager"
+import "github.com/jefrryss/Bank/internal/bankmanager"
 
 type ManualBalanceManager struct {
 	Bank       *bankmanager.BankManager

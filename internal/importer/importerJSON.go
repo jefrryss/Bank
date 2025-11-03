@@ -7,10 +7,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"task2/domain/entities"
-	"task2/domain/errordata"
-	"task2/domain/ports"
+
+	"github.com/jefrryss/Bank/domain/errordata"
+
+	"github.com/jefrryss/Bank/domain/ports"
+
 	"time"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type ImportJSON struct {

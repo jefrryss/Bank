@@ -1,9 +1,9 @@
 package importer
 
 import (
-	"task2/domain/entities"
-	"task2/domain/errordata"
-	"task2/domain/ports"
+	"github.com/jefrryss/Bank/domain/entities"
+	"github.com/jefrryss/Bank/domain/errordata"
+	"github.com/jefrryss/Bank/domain/ports"
 )
 
 // // Шаблоный метод (функция)

@@ -3,11 +3,12 @@ package bankmanager
 import (
 	"fmt"
 	"strings"
-	"task2/domain/entities"
-	"task2/domain/errordata"
-	"task2/domain/repository"
-	"task2/internal/repository/memory"
 	"time"
+
+	"github.com/jefrryss/Bank/domain/entities"
+	"github.com/jefrryss/Bank/domain/errordata"
+	"github.com/jefrryss/Bank/domain/repository"
+	"github.com/jefrryss/Bank/internal/repository/memory"
 )
 
 type BankManager struct {

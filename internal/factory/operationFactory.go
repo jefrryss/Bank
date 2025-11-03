@@ -3,8 +3,10 @@ package factory
 import (
 	"errors"
 	"strings"
-	"task2/domain/entities"
+
 	"time"
+
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 type OperationFactory struct{}

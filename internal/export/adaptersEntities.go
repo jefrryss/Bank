@@ -1,7 +1,7 @@
 package export
 
 import (
-	"task2/domain/entities"
+	"github.com/jefrryss/Bank/domain/entities"
 )
 
 // Элементы которые посещает Visitor(реализации интерфейса ExportVisitor: ExportCSV, exportTJSON)
