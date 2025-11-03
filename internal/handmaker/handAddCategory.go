@@ -57,6 +57,10 @@ func (c *Controller) UpdateAccount(id, name, balanceStr string) error {
 }
 
 func (c *Controller) DeleteAccount(id string) error {
+
+	if _, err := c.mgr.FindAccount(id); err != nil {
+		return fmt.Errorf("аккаунт с id %q не найден", id)
+	}
 	return c.mgr.DeleteAccount(id)
 }
 
@@ -81,6 +85,10 @@ func (c *Controller) UpdateCategory(id, name, typeCat string) error {
 }
 
 func (c *Controller) DeleteCategory(id string) error {
+
+	if _, err := c.mgr.FindCategory(id); err != nil {
+		return fmt.Errorf("категория с id %q не найдена", id)
+	}
 	return c.mgr.DeleteCategory(id)
 }
 
@@ -146,6 +154,10 @@ func (c *Controller) UpdateOperation(
 }
 
 func (c *Controller) DeleteOperation(id string) error {
+
+	if _, err := c.mgr.FindOperation(id); err != nil {
+		return fmt.Errorf("операция с id %q не найдена", id)
+	}
 	return c.mgr.DeleteOperation(id)
 }
 
