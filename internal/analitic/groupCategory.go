@@ -2,47 +2,67 @@ package analitic
 
 import (
 	"fmt"
-	"task2/internal/domain/entities"
+	"strings"
+	"task2/domain/entities"
 )
 
-// Команда для группировки операций по категориям
 type GroupByCategoryCommand struct {
 	Operations []*entities.Operation
 	Categories []*entities.Category
+	Result     string
 }
 
-// Конструктор команды, принимает слайсы данных напрямую
-func NewGroupByCategoryCommand(ops []*entities.Operation, cats []*entities.Category) *GroupByCategoryCommand {
+func NewGroupByCategoryCommand(op []*entities.Operation, cat []*entities.Category) Command {
 	return &GroupByCategoryCommand{
-		Operations: ops,
-		Categories: cats,
+		Operations: op,
+		Categories: cat,
 	}
 }
-
-// Выполнение команды
-func (c *GroupByCategoryCommand) Execute() error {
-	result := make(map[string]float64)
-
-	// Создаем карту id -> имя категории
-	catMap := make(map[string]string)
-	for _, category := range c.Categories {
-		catMap[category.ID] = category.Name
+func (c *GroupByCategoryCommand) Execute() (string, error) {
+	categoryMap := make(map[string]string)
+	for _, cat := range c.Categories {
+		categoryMap[cat.ID] = cat.Name
 	}
 
-	// Суммируем операции по категориям
+	incomeByCategory := make(map[string]float64)
+	expenseByCategory := make(map[string]float64)
+
 	for _, op := range c.Operations {
-		if op.CategoryID == nil {
-			continue
+		categoryID := ""
+		if op.CategoryID != nil {
+			categoryID = op.CategoryID.ID
 		}
-		name := catMap[op.CategoryID.ID]
-		result[name] += op.Amount
+
+		catName := categoryMap[categoryID]
+		if catName == "" {
+			catName = "Без категории"
+		}
+
+		if op.TypeOperation == "доход" {
+			incomeByCategory[catName] += op.Amount
+		} else {
+			expenseByCategory[catName] += op.Amount
+		}
 	}
 
-	// Вывод результата
-	fmt.Println("Группировка по категориям:")
-	for name, sum := range result {
-		fmt.Printf("%s: %.2f\n", name, sum)
+	var result strings.Builder
+	result.WriteString("=== ДОХОДЫ ПО КАТЕГОРИЯМ ===\n")
+	if len(incomeByCategory) == 0 {
+		result.WriteString("Нет доходов\n")
+	} else {
+		for cat, amount := range incomeByCategory {
+			result.WriteString(fmt.Sprintf("%s: %.2f\n", cat, amount))
+		}
 	}
 
-	return nil
+	result.WriteString("\n=== РАСХОДЫ ПО КАТЕГОРИЯМ ===\n")
+	if len(expenseByCategory) == 0 {
+		result.WriteString("Нет расходов\n")
+	} else {
+		for cat, amount := range expenseByCategory {
+			result.WriteString(fmt.Sprintf("%s: %.2f\n", cat, amount))
+		}
+	}
+
+	return result.String(), nil
 }

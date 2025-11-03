@@ -2,30 +2,46 @@ package analitic
 
 import (
 	"fmt"
+	"task2/internal/logstorage"
 	"time"
 )
 
-type LoggingDecorator struct {
+// декоратор над командой для логирования
+type LoggingDecoratorForAnalitic struct {
 	Cmd      Command
-	LogStore *LogStorage
+	LogStore *logstorage.LogStorage
 }
 
-func (d *LoggingDecorator) Execute() error {
+func (d *LoggingDecoratorForAnalitic) Execute() (string, error) {
 	start := time.Now()
 
-	err := d.Cmd.Execute()
+	out, err := d.Cmd.Execute()
+	elapsed := time.Since(start)
 
-	record := LogRecord{
-		CommandName: fmt.Sprintf("%T", d.Cmd),
+	startStr := start.Local().Format("2006-01-02 15:04:05")
+	endStr := start.Add(elapsed).Local().Format("2006-01-02 15:04:05")
+	ms := elapsed.Milliseconds()
+	humanDur := elapsed.Truncate(time.Millisecond).String()
+	if elapsed < time.Second {
+		humanDur = fmt.Sprintf("%dms", ms)
+	}
+
+	cmdType := fmt.Sprintf("%T", d.Cmd)
+
+	title := fmt.Sprintf(
+		"[%s → %s | %s/%d ms] Аналитика: %s",
+		startStr, endStr, humanDur, ms, cmdType,
+	)
+
+	rec := logstorage.LogRecord{
+		CommandName: title,
 		StartedAt:   start,
-		Duration:    time.Since(start),
+		Duration:    elapsed,
 	}
-
 	if err != nil {
-		record.ErrorText = err.Error()
+		rec.ErrorText = err.Error()
 	}
 
-	d.LogStore.Add(record)
-
-	return err
+	d.LogStore.Add(rec)
+	return out, err
 }

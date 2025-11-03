@@ -2,9 +2,12 @@ package bankmanager
 
 import (
 	"fmt"
-	"task2/internal/domain/entities"
-	"task2/internal/domain/errordata"
-	"task2/internal/domain/repository"
+	"strings"
+	"task2/domain/entities"
+	"task2/domain/errordata"
+	"task2/domain/repository"
+	"task2/internal/repository/memory"
+	"time"
 )
 
 type BankManager struct {
@@ -16,9 +19,9 @@ type BankManager struct {
 
 func NewBankManager() *BankManager {
 	return &BankManager{
-		accountsRepo:   repository.NewRepositoryBankAccountsMemory(),
-		categoriesRepo: repository.NewRepositoryCategoryMemory(),
-		operationsRepo: repository.NewRepositoryOperMemory(),
+		accountsRepo:   memory.NewRepositoryBankAccountsMemory(),
+		categoriesRepo: memory.NewRepositoryCategoryMemory(),
+		operationsRepo: memory.NewRepositoryOperMemory(),
 	}
 }
 
@@ -63,6 +66,8 @@ func (m *BankManager) AddOperations(operations []*entities.Operation) {
 		_ = m.operationsRepo.Save(op)
 	}
 }
+
+// Работа с аккаунтами
 func (m *BankManager) FindAccount(id string) (*entities.BankAccount, error) {
 	return m.accountsRepo.Find(id)
 }
@@ -75,11 +80,11 @@ func (m *BankManager) GetAllAccounts() ([]*entities.BankAccount, error) {
 	return m.accountsRepo.GetAll()
 }
 
-// Получить все ошибки
 func (m *BankManager) GetErrors() []errordata.ErrorRecord {
 	return m.errorData
 }
 
+// Работа с категориями
 func (m *BankManager) FindCategory(id string) (*entities.Category, error) {
 	return m.categoriesRepo.Find(id)
 }
@@ -91,6 +96,8 @@ func (m *BankManager) DeleteCategory(id string) error {
 func (m *BankManager) GetAllCategories() ([]*entities.Category, error) {
 	return m.categoriesRepo.GetAll()
 }
+
+// работа с операциями
 func (m *BankManager) FindOperation(id string) (*entities.Operation, error) {
 	return m.operationsRepo.Find(id)
 }
@@ -101,4 +108,65 @@ func (m *BankManager) DeleteOperation(id string) error {
 
 func (m *BankManager) GetAllOperations() ([]*entities.Operation, error) {
 	return m.operationsRepo.GetAll()
+}
+
+// Дополнительные методы
+func (m *BankManager) UpdateBalance(accountID string, newBalance float64) error {
+	account, err := m.accountsRepo.Find(accountID)
+	if err != nil {
+		return err
+	}
+
+	account.Balance = newBalance
+
+	return m.accountsRepo.Save(account)
+}
+
+func (m *BankManager) UpdateAccountFields(id, name string, balance float64) error {
+	acc, err := m.accountsRepo.Find(id)
+	if err != nil {
+		return fmt.Errorf("счёт id=%s не найден: %w", id, err)
+	}
+	acc.Name = strings.TrimSpace(name)
+	acc.Balance = balance
+	return m.accountsRepo.Save(acc)
+}
+
+func (m *BankManager) UpdateCategoryFields(id, name, typeCat string) error {
+	cat, err := m.categoriesRepo.Find(id)
+	if err != nil {
+		return fmt.Errorf("категория id=%s не найдена: %w", id, err)
+	}
+	cat.Name = strings.TrimSpace(name)
+	cat.TypeCategory = strings.ToLower(strings.TrimSpace(typeCat))
+	return m.categoriesRepo.Save(cat)
+}
+
+func (m *BankManager) UpdateOperationFields(
+	id, opType, accountID, categoryID string,
+	amount float64,
+	date time.Time,
+	description string,
+) error {
+	op, err := m.operationsRepo.Find(id)
+	if err != nil {
+		return fmt.Errorf("операция id=%s не найдена: %w", id, err)
+	}
+	acc, err := m.accountsRepo.Find(accountID)
+	if err != nil {
+		return fmt.Errorf("счёт id=%s не найден: %w", accountID, err)
+	}
+	cat, err := m.categoriesRepo.Find(categoryID)
+	if err != nil {
+		return fmt.Errorf("категория id=%s не найдена: %w", categoryID, err)
+	}
+
+	op.TypeOperation = strings.ToLower(strings.TrimSpace(opType))
+	op.Account = acc
+	op.CategoryID = cat
+	op.Amount = amount
+	op.Date = date
+	op.Description = strings.TrimSpace(description)
+
+	return m.operationsRepo.Save(op)
 }

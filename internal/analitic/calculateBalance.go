@@ -2,22 +2,20 @@ package analitic
 
 import (
 	"fmt"
-	"task2/internal/domain/entities"
+	"task2/domain/entities"
 	"time"
 )
 
-// Команда для расчёта баланса за период
 type CalculateBalanceCommand struct {
 	Operations []entities.Operation
 	From       time.Time
 	To         time.Time
 }
 
-// Конструктор команды, принимает данные из BankManager
 func NewCalculateBalanceCommand(ops []*entities.Operation) *CalculateBalanceCommand {
 	operations := make([]entities.Operation, len(ops))
 	for i, op := range ops {
-		operations[i] = *op // разыменовываем указатель
+		operations[i] = *op
 	}
 
 	return &CalculateBalanceCommand{
@@ -25,8 +23,7 @@ func NewCalculateBalanceCommand(ops []*entities.Operation) *CalculateBalanceComm
 	}
 }
 
-// Выполнение команды
-func (c *CalculateBalanceCommand) Execute() error {
+func (c *CalculateBalanceCommand) Execute() (string, error) {
 	var income, expense float64
 
 	for _, op := range c.Operations {
@@ -39,8 +36,8 @@ func (c *CalculateBalanceCommand) Execute() error {
 		}
 	}
 
-	fmt.Printf("Доход: %.2f | Расход: %.2f | Разница: %.2f\n",
+	result := fmt.Sprintf("Доход: %.2f | Расход: %.2f | Разница: %.2f",
 		income, expense, income-expense)
 
-	return nil
+	return result, nil
 }

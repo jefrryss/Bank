@@ -1,0 +1,12 @@
+type,id,type_or_opType,account_id,amount,date,description,category_id,name,balance
+bank_account,1,,,,,,,"Основной счёт",0
+bank_account,2,,,,,,,"Копилка",0
+category,1,доход,,,,,,Зарплата,
+category,2,расход,,,,,,Еда,
+category,3,расход,,,,,,Транспорт,
+operation,1,расход,1,1500,2024-01-15,Обед,2,,
+operation,2,доход,1,50000,2024-01-10,Зарплата,1,,
+operation,3,расход,1,300,2024-01-12,Проезд,3,,
+operation,4,доход,2,10000,2024-02-05,Премия,1,,
+operation,5,расход,2,2500,2024-02-10,Еда,2,,
+

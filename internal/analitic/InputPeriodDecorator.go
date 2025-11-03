@@ -1,43 +1,30 @@
 package analitic
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 	"time"
 )
 
-// Декоратор над командой для добавления вывода времени
+// Декоратор над командой для добавления периода
 type InputPeriodDecorator struct {
-	Cmd *CalculateBalanceCommand
+	Cmd  *CalculateBalanceCommand
+	From time.Time
+	To   time.Time
 }
 
-func (d *InputPeriodDecorator) Execute() error {
-	reader := bufio.NewReader(os.Stdin)
+func (d *InputPeriodDecorator) Execute() (string, error) {
+	d.Cmd.From = d.From
+	d.Cmd.To = d.To
 
-	fmt.Print("Введите дату ОТ (формат: 2006-01-02): ")
-	fromStr, _ := reader.ReadString('\n')
-	fromStr = strings.TrimSpace(fromStr)
+	result, err := d.Cmd.Execute()
 
-	from, err := time.Parse("2006-01-02", fromStr)
 	if err != nil {
-		return fmt.Errorf("неверный формат даты: %v", err)
+		return "", err
 	}
 
-	fmt.Print("Введите дату ДО (формат: 2006-01-02): ")
-	toStr, _ := reader.ReadString('\n')
-	toStr = strings.TrimSpace(toStr)
+	periodInfo := fmt.Sprintf("Период: %s — %s\n\n",
+		d.From.Format("2006-01-02"),
+		d.To.Format("2006-01-02"))
 
-	to, err := time.Parse("2006-01-02", toStr)
-	if err != nil {
-		return fmt.Errorf("неверный формат даты: %v", err)
-	}
-
-	d.Cmd.From = from
-	d.Cmd.To = to
-
-	fmt.Printf("Период установлен: %s — %s\n", from.Format("2006-01-02"), to.Format("2006-01-02"))
-
-	return d.Cmd.Execute()
+	return periodInfo + result, nil
 }
