@@ -5,15 +5,14 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/jefrryss/Bank/internal/analitic"
+	"github.com/jefrryss/Bank/internal/app"
+	"github.com/jefrryss/Bank/internal/bankmanager"
+	"github.com/jefrryss/Bank/internal/export"
+	"github.com/jefrryss/Bank/internal/handmaker"
+	"github.com/jefrryss/Bank/internal/importer"
+	"github.com/jefrryss/Bank/internal/logstorage"
 	"go.uber.org/dig"
-
-	"task2/internal/analitic"
-	"task2/internal/app"
-	"task2/internal/bankmanager"
-	"task2/internal/export"
-	"task2/internal/handmaker"
-	"task2/internal/importer"
-	"task2/internal/logstorage"
 )
 
 func main() {
