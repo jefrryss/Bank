@@ -10,7 +10,15 @@
 </p>
 
 ---
+# Запуск приложения (TUI-менеджер)
+## Установка и запуск
 
+### 1) Клонируйте проект (или распакуйте архив)
+```bash
+git clone https://github.com/jefrryss/Bank.git
+cd Bank/cmd
+go run main.go
+```
 ## Структура проекта
 
 ```text
